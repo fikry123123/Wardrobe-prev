@@ -140,3 +140,8 @@ body { background-image: radial-gradient(ellipse at 50% -15%, rgba(190,242,100,.
 .hero-upload-card button { color:#fca5a5; }
 .hero-upload-card button:hover { color:#fecaca; }
 @media(prefers-reduced-motion:reduce) { .hero-image-layer { transition:none; } }
+.admin-promos-section { border:1px solid rgba(255,255,255,.08); border-radius:1.2rem; padding:clamp(1rem,2vw,1.5rem); background:rgba(255,255,255,.02); }
+.admin-promos-section+.admin-promos-section { margin-top:1rem; }
+.product-sale-price { color:#bef264; font-weight:700; }
+.review-notification-highlight { animation:review-highlight 2.2s ease-out; }
+@keyframes review-highlight { 0%,100% { border-color:rgba(255,255,255,.1); box-shadow:none; } 20%,70% { border-color:#bef264; box-shadow:0 0 0 3px rgba(190,242,100,.2); } }
