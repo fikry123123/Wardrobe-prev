@@ -1,16 +1,48 @@
 # NOIR WARDROBE
 
-Demo toko pakaian dengan katalog produk, keranjang, checkout simulasi, ulasan, riwayat pesanan, dan panel admin.
+NOIR WARDROBE adalah demo toko pakaian online untuk menjelajahi koleksi pakaian, melihat detail produk, dan mencoba alur belanja dari keranjang hingga riwayat pesanan. Antarmukanya dirancang responsif untuk desktop dan ponsel.
 
 ## Preview
 
-Buka aplikasi di: [NOIR WARDROBE ? Preview](https://wardrobewebsite-pm9u8zkwv-fikrys-projects-96c906b8.vercel.app/)
+[**Buka NOIR WARDROBE**](https://wardrobewebsite-pm9u8zkwv-fikrys-projects-96c906b8.vercel.app/)
+
+## Fitur
+
+### Pengunjung
+
+- Menjelajahi seluruh produk dari halaman Beranda.
+- Memfilter produk berdasarkan kategori melalui halaman Koleksi.
+- Mencari produk dan membuka detail foto, deskripsi, harga, ukuran, stok, rating, serta ulasan.
+- Melihat rekomendasi produk lain.
+- Membaca halaman Tentang, Pengiriman & retur, dan Syarat & ketentuan.
+- Menjelajah sebagai guest tanpa harus masuk terlebih dahulu.
+
+### Pelanggan
+
+- Masuk atau membuat akun demo untuk menggunakan fitur belanja.
+- Mengelola profil, termasuk nama, email, kata sandi, dan alamat penerima.
+- Memilih produk serta ukuran sebelum memasukkannya ke keranjang.
+- Memilih item tertentu di keranjang untuk checkout.
+- Memilih alamat dan kurir serta mencoba pembayaran simulasi.
+- Melihat daftar pesanan dan membuka detail setiap pesanan.
+- Menulis ulasan untuk produk dari pesanan yang selesai, lalu mengubah ulasan tersebut.
+- Membaca balasan admin pada ulasan.
+
+### Admin
+
+- Mengelola produk: menambah, mengubah, dan menghapus produk.
+- Mengelola kategori produk.
+- Mengatur diskon produk dan voucher.
+- Mengelola akun pengguna dan memberikan peran admin.
+- Melihat notifikasi pesanan selesai dan ulasan baru.
+- Membuka detail pesanan dari notifikasi dan membalas ulasan pelanggan.
+- Mengelola banner toko dan konten halaman Tentang, Pengiriman & retur, serta Syarat & ketentuan.
 
 ## Menjalankan secara lokal
 
 1. Buka folder proyek di Visual Studio Code.
 2. Jalankan `index.html` menggunakan ekstensi Live Server.
-3. Situs akan terbuka di browser melalui server lokal.
+3. Buka alamat lokal yang ditampilkan Live Server di browser.
 
 ## Struktur proyek
 
@@ -28,6 +60,6 @@ Showcase, 3D Product Customizer/    Prototipe showcase produk
 state keranjang/                    Prototipe state keranjang
 ```
 
-## Catatan
+## Penyimpanan dan batasan demo
 
-Aplikasi ini berjalan sebagai demo frontend. Data akun, produk yang dikelola admin, pesanan, dan konten disimpan di browser menggunakan `localStorage`. Pembayaran dan pengiriman tidak diproses sungguhan.
+Aplikasi ini adalah frontend demo dan belum menggunakan backend atau database server. Data akun, produk yang dikelola admin, alamat, pesanan, ulasan, voucher, dan konten toko disimpan pada `localStorage` browser. Data hanya tersedia di browser/perangkat yang digunakan dan dapat hilang jika data browser dibersihkan. Pembayaran dan pengiriman tidak diproses sungguhan.
