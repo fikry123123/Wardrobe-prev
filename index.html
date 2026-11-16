@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NOIR // WARDROBE — Fashion E-Commerce</title>
+
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <!-- Tailwind CSS & Three.js CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            display: ['"Space Grotesk"', 'sans-serif'],
+          },
+          colors: {
+            obsidian: '#09090b',
+            surface: '#121216',
+            accent: '#bef264', // Cyber Lime
+          }
+        }
+      }
+    };
+  </script>
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body class="bg-obsidian text-zinc-100 antialiased selection:bg-accent selection:text-obsidian overflow-x-hidden">
+
+  <!-- TOAST NOTIFICATION -->
+  <div id="toast-notification" class="fixed bottom-6 right-6 z-50 translate-y-24 opacity-0 transition-all duration-300 pointer-events-none">
+    <div class="glass-panel px-5 py-3.5 rounded-2xl border border-accent/40 flex items-center gap-3 shadow-2xl">
+      <i class="fa-solid fa-circle-check text-accent text-lg"></i>
+      <span id="toast-message" class="text-sm font-medium text-white">Notifikasi</span>
+    </div>
+  </div>
+
+  <!-- NAVBAR (Muncul setelah Login) -->
+  <header id="main-navbar" class="hidden sticky top-0 z-40 glass-panel border-b border-white/10">
+    <div class="nav-shell max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 min-h-16 flex items-center justify-between gap-4">
+      <!-- Brand -->
+      <button onclick="App.navigate('dashboard')" class="nav-brand flex items-center gap-2.5 text-left group">
+        <div class="w-9 h-9 rounded-xl bg-accent text-obsidian flex items-center justify-center font-display font-bold text-lg group-hover:rotate-12 transition-transform">
+          N//
+        </div>
+        <span class="nav-brand-name font-display font-bold text-lg tracking-wider">NOIR <span class="nav-brand-sub text-zinc-500">WARDROBE</span></span>
+      </button>
+
+      <!-- Search Bar -->
+      <div class="mobile-search hidden md:flex items-center flex-1 max-w-md relative">
+        <i class="fa-solid fa-magnifying-glass absolute left-3.5 text-zinc-500 text-sm"></i>
+        <input
+          id="nav-search"
+          type="text"
+          placeholder="Cari kaos polos..."
+          class="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-2 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-accent transition"
+        />
+      </div>
+
+      <nav class="store-nav flex items-center gap-1" aria-label="Navigasi toko">
+        <button onclick="App.navigate('dashboard')" data-store-nav="dashboard" class="store-nav-link">Beranda</button>
+        <button onclick="App.navigate('catalog')" data-store-nav="catalog" class="store-nav-link">Koleksi</button>
+        <button onclick="App.goToFooter()" data-store-nav="about" class="store-nav-link">Tentang</button>
+      </nav>
+
+      <!-- Actions -->
+      <div class="mobile-nav-actions flex items-center gap-3 ml-auto">
+        <button onclick="App.navigate('cart')" class="relative p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition">
+          <i class="fa-solid fa-bag-shopping text-zinc-200"></i>
+          <span id="cart-badge" class="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-accent text-obsidian text-xs font-bold flex items-center justify-center">0</span>
+        </button>
+
+        <button onclick="App.navigate('profile')" title="Buka profil" class="hidden sm:flex items-center gap-2 rounded-xl border-l border-white/10 pl-3 text-left transition hover:bg-white/5 focus:outline-none focus:ring-2 focus:ring-accent">
+          <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-accent to-emerald-400 text-obsidian font-bold text-xs flex items-center justify-center">
+            <i class="fa-solid fa-user"></i>
+          </div>
+          <span id="nav-username" class="text-sm font-medium text-zinc-300">Member</span>
+        </button>
+
+        <button onclick="App.navigate('orders')" title="Riwayat pesanan" class="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition"><i class="fa-solid fa-receipt"></i></button>
+        <button id="admin-nav" onclick="App.navigate('admin')" title="Panel admin" class="hidden p-2.5 rounded-xl bg-accent/10 hover:bg-accent/20 text-accent border border-accent/20 transition"><i class="fa-solid fa-sliders"></i></button>
+        <button onclick="App.logout()" title="Keluar" class="p-2.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 transition">
+          <i class="fa-solid fa-right-from-bracket text-sm"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+  <button id="global-back" onclick="App.goBack()" class="hidden fixed left-4 top-[76px] z-30 rounded-full border border-white/10 bg-zinc-950/90 px-4 py-2 text-sm text-zinc-200 shadow-xl backdrop-blur-sm"><i class="fa-solid fa-arrow-left mr-2"></i>Kembali</button>
+
+  <!-- =========================================================
+       VIEW 1: LOGIN & SIGN UP
+  ========================================================== -->
+  <section id="view-auth" class="relative min-h-screen flex items-center justify-center p-4 overflow-hidden">
+    <div class="absolute inset-0 bg-gradient-to-b from-obsidian/40 via-obsidian/70 to-obsidian z-0 pointer-events-none"></div>
+
+    <!-- Auth Card -->
+    <div class="relative z-10 w-full max-w-md glass-panel rounded-3xl p-8 border border-white/15 shadow-2xl">
+      <div class="text-center mb-6">
+        <div class="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-accent text-obsidian font-display font-bold text-xl mb-3 shadow-lg shadow-accent/20">
+          N//
+        </div>
+        <h1 class="font-display text-2xl font-bold tracking-tight">NOIR // WARDROBE</h1>
+        <p class="text-zinc-400 text-sm mt-1">Kaos polos untuk gaya sehari-hari</p>
+      </div>
+
+      <!-- Switch Tabs -->
+      <div class="grid grid-cols-2 gap-1 p-1 bg-white/5 rounded-xl mb-6 border border-white/10">
+        <button id="tab-login" onclick="App.switchAuthTab('login')" class="py-2 text-sm font-semibold rounded-lg bg-accent text-obsidian transition">
+          Sign In
+        </button>
+        <button id="tab-register" onclick="App.switchAuthTab('register')" class="py-2 text-sm font-semibold rounded-lg text-zinc-400 hover:text-white transition">
+          Sign Up
+        </button>
+      </div>
+
+      <!-- Form Login -->
+      <form id="form-login" class="space-y-4">
+        <div>
+          <label class="block text-xs font-medium text-zinc-400 mb-1.5">Email</label>
+          <input id="login-email" type="email" required value="member@noirwardrobe.id" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-accent" />
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-zinc-400 mb-1.5">Password</label>
+          <input id="login-password" type="password" required minlength="6" placeholder="Minimal 6 karakter" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-accent" />
+        </div>
+        <button type="submit" class="w-full py-3 rounded-xl bg-accent hover:bg-lime-300 text-obsidian font-bold text-sm transition shadow-lg shadow-accent/20">
+          Masuk ke Wardrobe
+        </button>
+      </form>
+
+      <!-- Form Register -->
+      <form id="form-register" class="hidden space-y-4">
+        <div>
+          <label class="block text-xs font-medium text-zinc-400 mb-1.5">Nama Lengkap</label>
+          <input id="reg-name" type="text" required placeholder="Contoh: Raka Pratama" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-accent" />
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-zinc-400 mb-1.5">Email</label>
+          <input id="reg-email" type="email" required placeholder="nama@email.com" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-accent" />
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-zinc-400 mb-1.5">Password</label>
+          <input id="reg-password" type="password" required placeholder="Minimal 6 karakter" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-accent" />
+        </div>
+        <button type="submit" class="w-full py-3 rounded-xl bg-accent hover:bg-lime-300 text-obsidian font-bold text-sm transition">
+          Daftar Akun Baru
+        </button>
+      </form>
+
+      <div class="mt-5 pt-5 border-t border-white/10 text-center">
+        <button id="btn-demo-login" onclick="App.demoLogin()" class="text-xs text-zinc-400 hover:text-accent transition">
+          <i class="fa-solid fa-bolt mr-1"></i> Mode demo ? data hanya tersimpan di browser ini
+        </button>
+        <button onclick="App.demoAdminLogin()" class="mt-3 block w-full text-xs text-zinc-500 hover:text-accent">Admin demo ? admin@noirwardrobe.id / admin123</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       VIEW 2: DASHBOARD KATALOG
+  ========================================================== -->
+  <main id="view-dashboard" class="hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Hero Banner -->
+    <div class="relative rounded-3xl overflow-hidden glass-panel border border-white/10 grid grid-cols-1 lg:grid-cols-2 min-h-[340px]">
+      <div class="p-8 sm:p-10 flex flex-col justify-center">
+        <span class="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-accent mb-3">
+          <span class="w-2 h-2 rounded-full bg-accent "></span> <span id="hero-kicker">KOLEKSI KAOS POLOS</span>
+        </span>
+        <h2 class="font-display text-3xl sm:text-5xl font-bold leading-tight">
+          <span id="hero-title-main">Curated Urban</span><br /><span id="hero-title-accent" class="text-transparent bg-clip-text bg-gradient-to-r from-accent to-emerald-300">Wardrobe Essentials</span>
+        </h2>
+        <p class="text-zinc-400 text-sm sm:text-base mt-3 max-w-md">
+          <span id="hero-description">Potongan modern, bahan nyaman, dan warna yang mudah dipadukan untuk setiap hari.</span>
+        </p>
+        <div class="mt-6 flex flex-wrap gap-3">
+          <a href="#product-grid" onclick="event.preventDefault();App.catalogAction('all')" class="px-5 py-2.5 rounded-xl bg-accent text-obsidian font-bold text-sm hover:bg-lime-300 transition">
+            <span id="hero-button-label">Jelajahi Koleksi</span>
+          </a>
+          <span class="px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-xs text-zinc-300 flex items-center gap-2">
+            <i class="fa-solid fa-cube text-accent"></i> <span id="hero-note">Koleksi terbaru</span>
+          </span>
+        </div>
+      </div>
+
+      <!-- Foto produk -->
+      <div class="relative min-h-[260px] lg:min-h-full overflow-hidden"><img id="hero-image" src="assets/images/nw-03.svg" alt="Kaos polos NOIR warna slate grey" class="h-full min-h-[260px] w-full object-cover" fetchpriority="high"></div>
+    </div>
+
+  </main>
+
+  <main id="view-catalog" class="hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 min-h-[70vh]">
+    <div class="mb-8 flex flex-col gap-4 border-b border-white/10 pb-6 sm:flex-row sm:items-end sm:justify-between">
+      <div><p class="text-xs font-semibold uppercase tracking-[.22em] text-accent">NOIR / COLLECTION</p><h1 class="mt-2 font-display text-3xl font-bold sm:text-4xl">Koleksi Wardrobe</h1><p id="product-count" class="mt-2 text-sm text-zinc-400">Menampilkan semua item</p></div>
+      <div id="category-filters" class="flex flex-wrap gap-2"></div>
+    </div>
+    
+    <div id="product-grid" class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3"></div>
+
+  </main>
+
+  <section id="view-profile" class="hidden max-w-3xl mx-auto px-4 sm:px-6 py-8">
+    <button onclick="App.navigate('dashboard')" class="mb-5 text-sm text-zinc-400">← Kembali</button>
+    <div class="glass-panel rounded-3xl border border-white/10 p-6 sm:p-8 space-y-8">
+      <div><h1 class="font-display text-2xl font-bold">Akun</h1><p class="mt-1 text-sm text-zinc-400">Perubahan tersimpan di browser ini (mode demo).</p>
+        <form id="profile-form" class="mt-5 grid gap-4 sm:grid-cols-2">
+          <label class="text-xs text-zinc-400">Nama<input id="profile-name" required class="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white"></label>
+          <label class="text-xs text-zinc-400">Email<input id="profile-email" type="email" required class="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white"></label>
+          <label class="text-xs text-zinc-400 sm:col-span-2">Kata sandi baru<input id="profile-password" type="password" minlength="6" placeholder="Kosongkan jika tidak ingin mengubah" class="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white"></label>
+          <button class="justify-self-start rounded-xl bg-accent px-5 py-3 font-bold text-obsidian">Simpan perubahan akun</button>
+        </form>
+      </div>
+      <div class="border-t border-white/10 pt-6"><div class="flex items-center justify-between gap-3"><div><h2 class="font-display text-xl font-bold">Alamat tersimpan</h2><p class="mt-1 text-xs text-zinc-400">Pilih salah satu saat checkout.</p></div><button onclick="App.newAddress()" class="rounded-xl border border-accent px-4 py-2 text-sm text-accent">+ Tambah alamat</button></div><div id="address-list" class="mt-4 space-y-3"></div>
+        <form id="address-form" class="hidden mt-5 rounded-2xl border border-white/10 bg-white/[.03] p-4 space-y-3"><input id="address-id" type="hidden"><label class="block text-xs text-zinc-400">Label alamat<input id="address-label" required placeholder="Rumah, Kantor..." class="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-white"></label><div class="grid gap-3 sm:grid-cols-2"><label class="text-xs text-zinc-400">Nama penerima<input id="address-name" required class="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-white"></label><label class="text-xs text-zinc-400">Nomor telepon<input id="address-phone" required type="tel" class="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-white"></label></div><label class="block text-xs text-zinc-400">Kota<input id="address-city" required class="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-white"></label><label class="block text-xs text-zinc-400">Alamat lengkap<textarea id="address-line" required rows="2" class="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-white"></textarea></label><div class="flex gap-2"><button class="rounded-xl bg-accent px-4 py-2.5 text-sm font-bold text-obsidian">Simpan alamat</button><button type="button" onclick="App.cancelAddress()" class="rounded-xl bg-white/10 px-4 py-2.5 text-sm">Batal</button></div></form>
+      </div>
+    </div>
+  </section>
+  <section id="view-orders" class="hidden max-w-4xl mx-auto px-4 sm:px-6 py-8"><button onclick="App.navigate('dashboard')" class="mb-5 text-sm text-zinc-400">← Kembali ke toko</button><h1 class="font-display text-2xl font-bold">Riwayat Pesanan</h1><div id="orders-list" class="mt-5 space-y-3"></div></section>
+  <section id="view-order-detail" class="hidden max-w-3xl mx-auto px-4 sm:px-6 py-8"><button onclick="App.navigate('orders')" class="mb-5 text-sm text-zinc-400">← Kembali ke riwayat</button><div id="order-detail-content"></div></section>
+  <section id="view-admin" class="hidden max-w-6xl mx-auto px-4 sm:px-6 py-8"><div class="flex flex-wrap items-center justify-between gap-3"><div><p class="text-xs uppercase tracking-widest text-accent">NOIR / ADMIN</p><h1 class="font-display text-2xl font-bold">Panel admin</h1><p class="mt-1 text-xs text-zinc-500">Mode demo lokal · perubahan tersimpan di browser ini</p></div></div><div class="admin-tabs mt-6 flex flex-wrap gap-2 border-b border-white/10 pb-3"><button id="admin-tab-products" onclick="App.switchAdminTab('products')" class="rounded-lg bg-accent px-4 py-2 text-sm font-bold text-obsidian">Produk</button><button id="admin-tab-users" onclick="App.switchAdminTab('users')" class="rounded-lg bg-white/5 px-4 py-2 text-sm">Pengguna</button><button id="admin-tab-banner" onclick="App.switchAdminTab('banner')" class="rounded-lg bg-white/5 px-4 py-2 text-sm">Banner toko</button><button id="admin-tab-footer" onclick="App.switchAdminTab('footer')" class="rounded-lg bg-white/5 px-4 py-2 text-sm">Footer toko</button></div><div id="admin-products-panel"><div class="mt-5 flex items-center justify-between"><h2 class="font-display text-xl font-bold">Kelola produk</h2><button onclick="App.newProduct()" class="rounded-xl bg-accent px-4 py-2.5 text-sm font-bold text-obsidian">+ Tambah produk</button></div><form id="admin-product-form" class="hidden glass-panel mt-5 grid gap-3 rounded-2xl border border-white/10 p-5 sm:grid-cols-2"><input id="admin-product-id" type="hidden"><label class="text-xs text-zinc-400">Nama<input id="admin-product-name" required class="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-white"></label><label class="text-xs text-zinc-400">Harga (Rp)<input id="admin-product-price" type="number" min="1" required class="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-white"></label><label class="text-xs text-zinc-400">Warna<input id="admin-product-color" required class="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-white"></label><label class="text-xs text-zinc-400">Kode warna<input id="admin-product-hex" type="color" value="#222222" class="mt-1 h-11 w-full rounded-xl border border-white/10 bg-white/5 p-1"></label><label class="text-xs text-zinc-400 sm:col-span-2">URL foto produk<input id="admin-product-image" type="url" placeholder="https://... (kosongkan untuk foto dummy)" class="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-white"></label><label class="text-xs text-zinc-400 sm:col-span-2">Deskripsi<textarea id="admin-product-description" rows="2" required class="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-white"></textarea></label><label class="text-xs text-zinc-400">Bahan<input id="admin-product-material" value="Cotton combed" class="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-white"></label><label class="text-xs text-zinc-400">Stok awal<input id="admin-product-stock" type="number" min="0" value="10" class="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-white"></label><div class="flex gap-2 sm:col-span-2"><button class="rounded-xl bg-accent px-4 py-2.5 text-sm font-bold text-obsidian">Simpan produk</button><button type="button" onclick="App.cancelProduct()" class="rounded-xl bg-white/10 px-4 py-2.5 text-sm">Batal</button></div></form><div id="admin-product-list" class="mt-5 grid gap-3 sm:grid-cols-2"></div></div><div id="admin-users-panel" class="hidden mt-5"><h2 class="font-display text-xl font-bold">Manajemen pengguna</h2><p class="mt-1 text-xs text-zinc-500">Atur akun demo sebagai admin atau pembeli.</p><div id="admin-user-list" class="mt-4 space-y-3"></div></div><div id="admin-content-panel" class="hidden mt-5"><h2 id="admin-content-heading" class="font-display text-xl font-bold">Edit banner toko</h2><p class="mt-1 text-xs text-zinc-500">Perubahan langsung tampil di toko dan tersimpan di browser ini.</p><form id="admin-content-form" class="mt-5"><div id="admin-banner-fields" class="grid gap-4 sm:grid-cols-2"><label class="block text-xs text-zinc-400">Label banner<input id="edit-hero-kicker" class="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-white"></label><label class="block text-xs text-zinc-400">Judul utama<input id="edit-hero-title-main" class="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-white"></label><label class="block text-xs text-zinc-400">Judul sorotan<input id="edit-hero-title-accent" class="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-white"></label><label class="block text-xs text-zinc-400">Deskripsi banner<input id="edit-hero-description" class="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-white"></label><label class="block text-xs text-zinc-400">Teks tombol koleksi<input id="edit-hero-button-label" class="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-white"></label><label class="block text-xs text-zinc-400">Label kecil banner<input id="edit-hero-note" class="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-white"></label><label class="block text-xs text-zinc-400">Foto banner (path / URL<input id="edit-hero-image-url" class="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-white"></label></div><div id="admin-footer-fields" class="hidden grid gap-4 sm:grid-cols-2"><label class="block text-xs text-zinc-400">Judul tentang brand<input id="edit-footer-about-title-edit" class="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-white"></label><label class="block text-xs text-zinc-400">Deskripsi brand<input id="edit-footer-about-body-edit" class="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-white"></label><label class="block text-xs text-zinc-400">Teks tautan koleksi<input id="edit-footer-about-link-edit" class="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-white"></label><label class="block text-xs text-zinc-400">Judul kolom bantuan<input id="edit-footer-help-title-edit" class="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-white"></label><label class="block text-xs text-zinc-400">Teks pesanan<input id="edit-footer-orders-link-edit" class="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-white"></label><label class="block text-xs text-zinc-400">Email kontak<input id="edit-footer-contact-link-edit" class="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-white"></label><label class="block text-xs text-zinc-400">Teks pengiriman & retur<input id="edit-footer-shipping-link-edit" class="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-white"></label><label class="block text-xs text-zinc-400">Teks syarat & ketentuan<input id="edit-footer-terms-link-edit" class="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-white"></label><label class="block text-xs text-zinc-400">Judul sosial<input id="edit-footer-social-title-edit" class="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-white"></label><label class="block text-xs text-zinc-400">URL Instagram<input id="edit-footer-instagram-edit" class="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-white"></label><label class="block text-xs text-zinc-400">URL TikTok<input id="edit-footer-tiktok-edit" class="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-white"></label><label class="block text-xs text-zinc-400">URL YouTube<input id="edit-footer-youtube-edit" class="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-white"></label><label class="block text-xs text-zinc-400">Lokasi<input id="edit-footer-location-edit" class="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-white"></label><label class="block text-xs text-zinc-400">Judul newsletter<input id="edit-footer-newsletter-title-edit" class="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-white"></label><label class="block text-xs text-zinc-400">Deskripsi newsletter<input id="edit-footer-newsletter-body-edit" class="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-white"></label><label class="block text-xs text-zinc-400">Placeholder email newsletter<input id="edit-footer-newsletter-placeholder-edit" class="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-white"></label><label class="block text-xs text-zinc-400">Catatan bawah footer<input id="edit-footer-demo-note-edit" class="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-white"></label><label class="block text-xs text-zinc-400">Teks copyright<input id="edit-footer-copyright-edit" class="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-white"></label></div><button id="admin-content-save" class="mt-4 rounded-xl bg-accent px-5 py-3 font-bold text-obsidian">Simpan banner</button></form></div></section>
+
+  <!-- =========================================================
+       VIEW 3: DETAIL ITEM
+  ========================================================== -->
+  <section id="view-detail" class="hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <button onclick="App.navigate('dashboard')" class="inline-flex items-center gap-2 text-sm text-zinc-400 hover:text-white mb-6 transition">
+      <i class="fa-solid fa-arrow-left"></i> Kembali ke Katalog
+    </button>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      <!-- Foto produk -->
+      <div class="lg:col-span-7 glass-panel rounded-3xl border border-white/10 overflow-hidden relative">
+        <div class="absolute top-4 left-4 z-10 flex items-center gap-2">
+          <span class="px-3 py-1 rounded-full bg-obsidian/80 border border-white/10 text-xs text-accent font-medium">
+            <i class="fa-solid fa-image mr-1"></i> Foto produk
+          </span>
+        </div>
+        <div id="detail-canvas-container" class="product-photo w-full h-[380px] sm:h-[460px]"></div>
+        <div class="px-6 py-3 bg-white/[0.02] border-t border-white/10 text-xs text-zinc-400 flex justify-between">
+          <span>Foto produk biasa</span>
+          <span>Pilih ukuran dan masukkan ke keranjang</span>
+        </div>
+      </div>
+
+      <!-- Right: Product Info & Configurator -->
+      <div class="lg:col-span-5 glass-panel rounded-3xl p-6 sm:p-8 border border-white/10 space-y-6">
+        <div>
+          <span id="detail-category" class="text-xs font-bold uppercase tracking-widest text-accent">OUTERWEAR</span>
+          <h1 id="detail-title" class="font-display text-2xl sm:text-3xl font-bold mt-1">Nama Produk</h1>
+          <p id="detail-price" class="font-display text-2xl font-bold text-white mt-2">Rp 0</p>
+        </div>
+
+        <p id="detail-desc" class="text-sm text-zinc-400 leading-relaxed">Deskripsi produk.</p>
+
+        <!-- Color Selector -->
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-2.5">
+            Pilih Warna
+          </label>
+          <div id="detail-colors" class="flex flex-wrap gap-3"></div>
+        </div>
+
+        <!-- Size Selector -->
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-2.5">
+            Pilih Ukuran
+          </label>
+          <div id="detail-sizes" class="grid grid-cols-4 gap-2.5"></div>
+        </div>
+
+        <!-- Material Spec -->
+        <div class="p-3.5 rounded-2xl bg-white/5 border border-white/10 text-xs text-zinc-300 flex items-center gap-3">
+          <i class="fa-solid fa-layer-group text-accent text-base"></i>
+          <div>
+            <span class="text-zinc-500 block">Spesifikasi Bahan:</span>
+            <span id="detail-material" class="font-medium">-</span>
+          </div>
+        </div>
+
+        <!-- Quantity & Add to Cart -->
+        <div class="flex items-center gap-3 pt-2">
+          <div class="flex items-center bg-white/5 border border-white/10 rounded-xl">
+            <button onclick="App.changeDetailQty(-1)" class="px-3.5 py-3 text-zinc-400 hover:text-white">-</button>
+            <span id="detail-qty" class="px-3 font-bold text-sm">1</span>
+            <button onclick="App.changeDetailQty(1)" class="px-3.5 py-3 text-zinc-400 hover:text-white">+</button>
+          </div>
+          <button id="btn-add-cart" class="flex-1 py-3.5 px-6 rounded-xl bg-accent hover:bg-lime-300 text-obsidian font-bold text-sm transition flex items-center justify-center gap-2 shadow-lg shadow-accent/20">
+            <i class="fa-solid fa-bag-shopping"></i> Masukkan Keranjang
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="product-social-section" class="hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-10">
+    <div id="product-reviews" class="hidden glass-panel rounded-3xl border border-white/10 p-6"></div>
+    <div id="product-recommendations" class="hidden mt-8"><h2 class="font-display text-2xl font-bold">Kamu mungkin juga suka</h2><div id="recommendation-grid" class="mt-4 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3"></div></div>
+  </section>
+
+  <!-- =========================================================
+       VIEW 4: KERANJANG BELANJA (CART)
+  ========================================================== -->
+  <section id="view-cart" class="hidden max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="flex items-center justify-between mb-6">
+      <h1 class="font-display text-2xl sm:text-3xl font-bold">Keranjang Belanja</h1>
+      <button onclick="App.navigate('dashboard')" class="text-sm text-accent hover:underline">
+        + Tambah Item Lain
+      </button>
+    </div>
+
+    <!-- Empty State -->
+    <div id="cart-empty-state" class="hidden glass-panel rounded-3xl p-12 text-center border border-white/10">
+      <i class="fa-solid fa-bag-shopping text-4xl text-zinc-600 mb-3"></i>
+      <h3 class="font-display text-xl font-bold">Keranjang Masih Kosong</h3>
+      <p class="text-sm text-zinc-400 mt-1 mb-6">Pilih item wardrobe favoritmu untuk mulai berbelanja.</p>
+      <button onclick="App.navigate('dashboard')" class="px-6 py-2.5 rounded-xl bg-accent text-obsidian font-bold text-sm">
+        Lihat Katalog
+      </button>
+    </div>
+
+    <!-- Cart Grid -->
+    <div id="cart-content-grid" class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      <div id="cart-items-container" class="lg:col-span-7 space-y-4"></div>
+
+      <!-- Summary Box -->
+      <div id="cart-summary-box" class="lg:col-span-5 glass-panel rounded-3xl p-6 border border-white/10 h-fit space-y-5">
+        <h3 class="font-display text-lg font-bold">Ringkasan Belanja</h3>
+
+        <!-- Promo Code -->
+        <div>
+          <label class="text-xs text-zinc-400 block mb-1.5">Kode Promo (Coba: <span class="text-accent font-mono">NOIR20</span>)</label>
+          <div class="flex gap-2">
+            <input id="promo-input" type="text" placeholder="Masukkan kode..." class="flex-1 bg-white/5 border border-white/10 rounded-xl px-3.5 py-2 text-sm uppercase focus:outline-none focus:border-accent" />
+            <button onclick="App.applyPromo()" class="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-bold transition">
+              Pakai
+            </button>
+          </div>
+          <p id="promo-msg" class="text-xs mt-1.5 hidden"></p>
+        </div>
+
+        <div class="space-y-2.5 text-sm border-t border-white/10 pt-4">
+          <div class="flex justify-between text-zinc-400">
+            <span>Subtotal</span>
+            <span id="summary-subtotal">Rp 0</span>
+          </div>
+          <div class="flex justify-between text-emerald-400">
+            <span>Diskon Promo</span>
+            <span id="summary-discount">- Rp 0</span>
+          </div>
+          <div class="flex justify-between text-zinc-400">
+            <span>PPN (11%)</span>
+            <span id="summary-tax">Rp 0</span>
+          </div>
+          <div class="flex justify-between font-display text-lg font-bold text-white border-t border-white/10 pt-3">
+            <span>Total</span>
+            <span id="summary-total" class="text-accent">Rp 0</span>
+          </div>
+        </div>
+
+        <button onclick="App.navigate('checkout')" class="w-full py-3.5 rounded-xl bg-accent hover:bg-lime-300 text-obsidian font-bold text-sm transition">
+          Lanjut ke Checkout <i class="fa-solid fa-arrow-right ml-1"></i>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       VIEW 5: CHECKOUT & PENGIRIMAN
+  ========================================================== -->
+  <section id="view-checkout" class="hidden max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <button onclick="App.navigate('cart')" class="inline-flex items-center gap-2 text-sm text-zinc-400 hover:text-white mb-6">
+      <i class="fa-solid fa-arrow-left"></i> Kembali ke Keranjang
+    </button>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      <!-- Shipping Form -->
+      <form id="checkout-form" class="lg:col-span-7 glass-panel rounded-3xl p-6 sm:p-8 border border-white/10 space-y-5">
+        <h2 class="font-display text-xl font-bold">Informasi Pengiriman</h2>
+
+        <div><label for="checkout-address" class="mb-2 block text-xs text-zinc-400">Pilih alamat penerima</label><select id="checkout-address" class="w-full rounded-xl border border-white/10 bg-zinc-900 px-4 py-3 text-sm text-white"></select><div id="checkout-address-preview" class="mt-2 text-xs leading-relaxed text-zinc-400"></div><button type="button" onclick="App.navigate('profile')" class="mt-2 text-xs text-accent">Kelola alamat</button></div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs text-zinc-400 mb-1.5">Nama Penerima</label>
+            <input id="ship-name" type="text" required value="Fikry Fathurrahman" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-accent" />
+          </div>
+          <div>
+            <label class="block text-xs text-zinc-400 mb-1.5">No. WhatsApp</label>
+            <input id="ship-phone" type="tel" required value="081234567890" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-accent" />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs text-zinc-400 mb-1.5">Kota / Kecamatan</label>
+          <input id="ship-city" type="text" required value="Bandung, Jawa Barat" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-accent" />
+        </div>
+
+        <div>
+          <label class="block text-xs text-zinc-400 mb-1.5">Alamat Lengkap</label>
+          <textarea id="ship-address" rows="2" required class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-accent">Jl. Asia Afrika No. 88, Bandung</textarea>
+        </div>
+
+        <!-- Courier Selection -->
+        <div>
+          <label class="block text-xs text-zinc-400 mb-2">Pilih Metode Pengiriman</label>
+          <div id="courier-options" class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <!-- Di-render via app.js -->
+          </div>
+        </div>
+
+        <button type="submit" class="w-full py-3.5 rounded-xl bg-accent hover:bg-lime-300 text-obsidian font-bold text-sm transition shadow-lg shadow-accent/20">
+          <i class="fa-solid fa-shield-halved mr-1.5"></i> Pilih Pembayaran (Payment Gateway)
+        </button>
+      </form>
+
+      <!-- Order Review -->
+      <div class="lg:col-span-5 glass-panel rounded-3xl p-6 border border-white/10 h-fit space-y-4">
+        <h3 class="font-display text-lg font-bold">Detail Pesanan</h3>
+        <div id="checkout-items-list" class="space-y-3 max-h-64 overflow-y-auto pr-1"></div>
+
+        <div class="border-t border-white/10 pt-4 space-y-2 text-sm">
+          <div class="flex justify-between text-zinc-400">
+            <span>Total Barang (Termasuk PPN)</span>
+            <span id="checkout-subtotal">Rp 0</span>
+          </div>
+          <div class="flex justify-between text-zinc-400">
+            <span>Ongkos Kirim</span>
+            <span id="checkout-shipping">Rp 0</span>
+          </div>
+          <div class="flex justify-between font-display text-lg font-bold text-white border-t border-white/10 pt-3">
+            <span>Total Tagihan</span>
+            <span id="checkout-total" class="text-accent">Rp 0</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       MODAL: PAYMENT GATEWAY SIMULATOR (MIDTRANS SNAP STYLE)
+  ========================================================== -->
+  <div id="payment-modal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
+    <div class="w-full max-w-md glass-panel rounded-3xl border border-white/15 overflow-hidden shadow-2xl">
+      <!-- Header Snap -->
+      <div class="bg-zinc-900 px-6 py-4 border-b border-white/10 flex items-center justify-between">
+        <div>
+          <span class="text-[11px] uppercase tracking-wider text-zinc-400 block">NOIR PAY // GATEWAY</span>
+          <span id="pg-order-id" class="font-mono text-xs text-accent font-bold">ORD-2026-001</span>
+        </div>
+        <div class="text-right">
+          <span class="text-[11px] text-zinc-400 block">Batas Waktu</span>
+          <span id="pg-timer" class="font-mono text-xs font-bold text-amber-400">15:00</span>
+        </div>
+      </div>
+
+      <!-- Step 1: Payment Selection -->
+      <div id="pg-step-select" class="p-6 space-y-5">
+        <div class="p-4 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-between">
+          <span class="text-xs text-zinc-400">Total Pembayaran</span>
+          <span id="pg-amount" class="font-display text-xl font-bold text-accent">Rp 0</span>
+        </div>
+
+        <!-- Method Tabs -->
+        <div class="grid grid-cols-3 gap-2">
+          <button id="pg-tab-qris" onclick="App.switchPaymentTab('qris')" class="py-2.5 rounded-xl bg-accent text-obsidian font-bold text-xs transition">
+            QRIS
+          </button>
+          <button id="pg-tab-va" onclick="App.switchPaymentTab('va')" class="py-2.5 rounded-xl bg-white/5 text-zinc-300 font-bold text-xs hover:bg-white/10 transition">
+            Virtual Account
+          </button>
+          <button id="pg-tab-ewallet" onclick="App.switchPaymentTab('ewallet')" class="py-2.5 rounded-xl bg-white/5 text-zinc-300 font-bold text-xs hover:bg-white/10 transition">
+            E-Wallet
+          </button>
+        </div>
+
+        <!-- QRIS Content -->
+        <div id="pg-content-qris" class="text-center space-y-3 py-2">
+          <div class="inline-block p-4 bg-white rounded-2xl">
+            <!-- Generated QR SVG -->
+            <svg class="w-40 h-40 text-obsidian" viewBox="0 0 100 100" fill="currentColor">
+              <rect x="10" y="10" width="25" height="25" fill="none" stroke="currentColor" stroke-width="6"/>
+              <rect x="17" y="17" width="11" height="11"/>
+              <rect x="65" y="10" width="25" height="25" fill="none" stroke="currentColor" stroke-width="6"/>
+              <rect x="72" y="17" width="11" height="11"/>
+              <rect x="10" y="65" width="25" height="25" fill="none" stroke="currentColor" stroke-width="6"/>
+              <rect x="17" y="72" width="11" height="11"/>
+              <rect x="45" y="15" width="10" height="10"/><rect x="45" y="35" width="10" height="20"/>
+              <rect x="15" y="45" width="20" height="10"/><rect x="65" y="45" width="25" height="10"/>
+              <rect x="45" y="65" width="15" height="15"/><rect x="70" y="70" width="20" height="20"/>
+            </svg>
+          </div>
+          <p class="text-xs text-zinc-400">Scan QRIS menggunakan GoPay, OVO, DANA, ShopeePay, atau Mobile Banking</p>
+        </div>
+
+        <!-- VA Content -->
+        <div id="pg-content-va" class="hidden space-y-3 py-2">
+          <label class="text-xs text-zinc-400 block">Pilih Bank Virtual Account</label>
+          <select id="va-bank-select" onchange="App.updateVaNumber()" class="w-full bg-zinc-900 border border-white/15 rounded-xl px-3.5 py-2.5 text-sm">
+            <option value="88010">BCA Virtual Account</option>
+            <option value="89022">Mandiri Virtual Account</option>
+            <option value="82771">BNI Virtual Account</option>
+          </select>
+          <div class="p-3.5 rounded-xl bg-white/5 border border-white/10 flex items-center justify-between">
+            <span id="va-number-display" class="font-mono text-base font-bold text-accent">8801081234567890</span>
+            <button onclick="App.copyVa()" class="text-xs px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/20">Salin</button>
+          </div>
+        </div>
+
+        <!-- E-Wallet Content -->
+        <div id="pg-content-ewallet" class="hidden space-y-2.5 py-2">
+          <div class="p-3 rounded-xl bg-white/5 border border-accent/40 flex items-center justify-between">
+            <span class="text-sm font-medium">GoPay / QRIS Instant</span>
+            <span class="text-xs text-accent font-bold">Terhubung</span>
+          </div>
+          <div class="p-3 rounded-xl bg-white/5 border border-white/10 flex items-center justify-between">
+            <span class="text-sm font-medium">ShopeePay</span>
+            <span class="text-xs text-zinc-400">Tersedia</span>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex gap-3 pt-2">
+          <button onclick="App.closePaymentModal()" class="px-4 py-3 rounded-xl bg-white/5 hover:bg-white/10 text-xs font-bold text-zinc-400">
+            Batal
+          </button>
+          <button onclick="App.confirmPaymentSuccess()" class="flex-1 py-3 rounded-xl bg-accent hover:bg-lime-300 text-obsidian font-bold text-xs transition">
+            Simulasikan Pembayaran Berhasil
+          </button>
+        </div>
+      </div>
+
+      <!-- Step 2: Payment Success Receipt -->
+      <div id="pg-step-success" class="hidden p-8 text-center space-y-4">
+        <div class="w-16 h-16 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto text-3xl animate-bounce">
+          <i class="fa-solid fa-check"></i>
+        </div>
+        <h3 class="font-display text-2xl font-bold">Pembayaran Berhasil!</h3>
+        <p class="text-xs text-zinc-400 leading-relaxed">
+          Transaksi <span id="pg-receipt-id" class="text-white font-mono font-bold"></span> telah terverifikasi. Pesanan wardrobe kamu sedang disiapkan untuk pengiriman.
+        </p>
+        <button onclick="App.finishOrder()" class="w-full py-3 rounded-xl bg-accent text-obsidian font-bold text-sm">
+          Kembali ke Dashboard
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <footer id="store-footer" class="store-footer mt-16 border-t border-white/10 bg-black">
+    <div class="mx-auto grid max-w-7xl gap-10 px-6 py-14 sm:grid-cols-2 lg:grid-cols-[1fr_.7fr_.8fr_1.35fr] lg:gap-14">
+      <div><h2 id="footer-about-title" class="footer-heading">TENTANG NOIR</h2><p id="footer-about-body" class="mt-5 max-w-xs text-sm leading-6 text-zinc-400">Wardrobe esensial dengan potongan yang dipikirkan matang, bahan pilihan, dan gaya yang bertahan melewati musim.</p><a id="footer-about-link" href="#product-grid" onclick="event.preventDefault();App.navigate('catalog')" class="mt-5 inline-block text-xs text-accent">Temukan koleksi <i class="fa-solid fa-arrow-right ml-1"></i></a></div>
+      <div><h2 id="footer-help-title" class="footer-heading">BANTUAN</h2><ul class="mt-5 space-y-4 text-sm text-zinc-400"><li><button onclick="App.navigate('orders')" id="footer-orders-link" class="hover:text-white">Pesanan saya</button></li><li><a id="footer-contact-link" href="mailto:halo@noirwardrobe.example" class="hover:text-white">Hubungi kami</a></li><li><span id="footer-shipping-link">Pengiriman & retur</span></li><li><span id="footer-terms-link">Syarat & ketentuan</span></li></ul></div>
+      <div><h2 id="footer-social-title" class="footer-heading">IKUTI NOIR</h2><div class="mt-5 flex gap-4 text-xl text-zinc-300"><a id="footer-instagram" href="https://instagram.com" aria-label="Instagram" class="hover:text-accent"><i class="fa-brands fa-instagram"></i></a><a id="footer-tiktok" href="https://tiktok.com" aria-label="TikTok" class="hover:text-accent"><i class="fa-brands fa-tiktok"></i></a><a id="footer-youtube" href="https://youtube.com" aria-label="YouTube" class="hover:text-accent"><i class="fa-brands fa-youtube"></i></a></div><p id="footer-location" class="mt-6 text-sm text-zinc-500">Jakarta · Indonesia</p></div>
+      <div><h2 id="footer-newsletter-title" class="footer-heading">BERGABUNG & DAPATKAN UPDATE</h2><p id="footer-newsletter-body" class="mt-5 text-sm leading-6 text-zinc-400">Dapatkan kabar koleksi terbaru dan penawaran spesial langsung di inbox.</p><form id="newsletter-form" class="newsletter-form mt-5 flex border-b border-white/30"><input id="newsletter-email" type="email" required placeholder="Alamat email kamu" class="min-w-0 flex-1 bg-transparent py-3 text-sm text-white placeholder:text-zinc-500 focus:outline-none"><button aria-label="Daftar newsletter" class="px-3 text-lg text-white hover:text-accent"><i class="fa-regular fa-envelope"></i></button></form></div>
+    </div>
+    <div class="mx-auto flex max-w-7xl flex-col gap-2 border-t border-white/10 px-6 py-5 text-xs text-zinc-500 sm:flex-row sm:justify-between"><span id="footer-copyright">© 2026 NOIR WARDROBE · Dibuat untuk dipakai setiap hari.</span><span>Mode demo · pembayaran dan pengiriman belum diproses sungguhan.</span></div>
+  </footer>
+  <script src="assets/js/data.js"></script>
+  <script src="assets/js/app.js"></script>
+</body>
+</html>
