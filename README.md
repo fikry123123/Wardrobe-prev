@@ -4,7 +4,7 @@ NOIR WARDROBE adalah demo toko pakaian online untuk menjelajahi koleksi pakaian,
 
 ## Preview
 
-[**Buka NOIR WARDROBE**](https://wardrobewebsite-pm9u8zkwv-fikrys-projects-96c906b8.vercel.app/)
+[**Buka NOIR WARDROBE**](https://wardrobewebsite-nfjwrff4w-fikrys-projects-96c906b8.vercel.app/)
 
 ## Fitur
 
@@ -23,6 +23,7 @@ NOIR WARDROBE adalah demo toko pakaian online untuk menjelajahi koleksi pakaian,
 - Mengelola profil, termasuk nama, email, kata sandi, dan alamat penerima.
 - Memilih produk serta ukuran sebelum memasukkannya ke keranjang.
 - Memilih item tertentu di keranjang untuk checkout.
+- Memasukkan kode voucher di keranjang untuk mendapat potongan harga yang memenuhi minimum belanja.
 - Memilih alamat dan kurir serta mencoba pembayaran simulasi.
 - Melihat daftar pesanan dan membuka detail setiap pesanan.
 - Menulis ulasan untuk produk dari pesanan yang selesai, lalu mengubah ulasan tersebut.
@@ -32,7 +33,8 @@ NOIR WARDROBE adalah demo toko pakaian online untuk menjelajahi koleksi pakaian,
 
 - Mengelola produk: menambah, mengubah, dan menghapus produk.
 - Mengelola kategori produk.
-- Mengatur diskon produk dan voucher.
+- Memberi diskon langsung hingga 90% pada produk; harga setelah diskon tampil di katalog dan keranjang.
+- Membuat, mengubah, dan menghapus voucher berupa diskon persentase atau potongan nominal, dengan minimum belanja dan batas maksimum potongan opsional.
 - Mengelola akun pengguna dan memberikan peran admin.
 - Melihat notifikasi pesanan selesai dan ulasan baru.
 - Membuka detail pesanan dari notifikasi dan membalas ulasan pelanggan.
@@ -63,3 +65,5 @@ state keranjang/                    Prototipe state keranjang
 ## Penyimpanan dan batasan demo
 
 Aplikasi ini adalah frontend demo dan belum menggunakan backend atau database server. Data akun, produk yang dikelola admin, alamat, pesanan, ulasan, voucher, dan konten toko disimpan pada `localStorage` browser. Data hanya tersedia di browser/perangkat yang digunakan dan dapat hilang jika data browser dibersihkan. Pembayaran dan pengiriman tidak diproses sungguhan.
+
+Voucher demo bawaan: `NOIR20` memberi diskon 20% untuk belanja minimal Rp200.000 (maksimal potongan Rp100.000), sedangkan `WELCOME10` memberi diskon 10%. Kode voucher dapat diterapkan di keranjang.
